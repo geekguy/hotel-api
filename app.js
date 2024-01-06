@@ -1,49 +1,13 @@
+require("dotenv").config();
 const express = require("express");
-
+const mongoose = require("mongoose");
 const app = express();
 
-const hotels = [
-  {
-    id: 1,
-    name: "Hotel 10",
-    city: "City 1",
-    price: 100,
-    rooms: 1,
-    image: "https://via.placeholder.com/150",
-  },
-  {
-    id: 2,
-    name: "Hotel 2",
-    city: "City 2",
-    price: 200,
-    rooms: 2,
-    image: "https://via.placeholder.com/150",
-  },
-  {
-    id: 3,
-    name: "Hotel 3",
-    city: "City 3",
-    price: 300,
-    rooms: 3,
-    image: "https://via.placeholder.com/150",
-  },
-  {
-    id: 4,
-    name: "Hotel 4",
-    city: "City 4",
-    price: 400,
-    rooms: 4,
-    image: "https://via.placeholder.com/150",
-  },
-  {
-    id: 5,
-    name: "Hotel 5",
-    city: "City 5",
-    price: 500,
-    rooms: 5,
-    image: "https://via.placeholder.com/150",
-  },
-];
+mongoose.connect(process.env.MONGO_URL).then(() => {
+  console.log(`Connected with MongoDB`);
+});
+
+const Hotel = require("./models/hotel");
 
 app.use(express.json());
 
@@ -51,24 +15,21 @@ app.get("/", (req, res) => {
   res.send("Hello World");
 });
 
-app.get("/api/hotels", (req, res) => {
+app.get("/api/hotels", async (req, res) => {
+  const hotels = await Hotel.find();
   res.json(hotels);
 });
 
-app.get("/api/hotels/:id", (req, res) => {
+app.get("/api/hotels/:id", async (req, res) => {
   const id = req.params.id;
-  const hotel = hotels.find((hotel) => hotel.id === Number(id));
-  if (!hotel) {
-    return res.status(404).json({ message: "Hotel not found" });
-  }
-  res.json(hotel);
+  const hotel = await Hotel.findById(id);
+  res.send(hotel);
 });
 
-app.post("/api/hotels", (req, res) => {
+app.post("/api/hotels", async (req, res) => {
   const hotel = req.body;
-  hotel.id = hotels.length + 1;
-  hotels.push(hotel);
-  res.send(hotel);
+  const dbHotel = await Hotel.create(hotel);
+  res.send(dbHotel);
 });
 
 app.listen(8080, () => {
