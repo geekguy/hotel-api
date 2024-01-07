@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const app = express();
 
 const hotelRoutes = require("./routes/hotel");
+const userRouters = require("./routes/user");
 
 mongoose.connect(process.env.MONGO_URL).then(() => {
   console.log(`Connected with MongoDB`);
@@ -16,6 +17,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/hotels", hotelRoutes);
+app.use("/api/users", userRouters);
 
 app.listen(8080, () => {
   console.log("Server is running on port #8080");
